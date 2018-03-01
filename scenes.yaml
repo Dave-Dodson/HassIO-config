@@ -1,0 +1,34 @@
+- name: Livingroom normal
+  entities:
+    light.stevie:
+      state: on
+      transition: 2
+      brightness_pct: 60
+      rgb_color: [255,207,120]
+    light.sophie:
+      state: on
+      transition: 2
+      brightness_pct: 85
+      rgb_color:  [255,236,186]
+    light.sheldon:
+      state: on
+      transition: 2
+      brightness_pct: 60
+      rgb_color: [255,207,120]
+- name: Livingroom dim
+  entities:
+    light.sophie:
+      state: on
+      transition: 2
+      brightness_pct: 10
+      rgb_color: [255,207,120]
+    light.stevie:
+      state: on
+      transition: 2
+      brightness_pct: 30
+      rgb_color: [64,0,255]
+    light.sheldon:
+      state: on
+      transition: 2
+      brightness_pct: 10
+      rgb_color: [255,207,120]

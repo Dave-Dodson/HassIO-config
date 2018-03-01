@@ -1,0 +1,15 @@
+#RunScriptIntent:
+#  action:
+#    service: script.turn_on
+#    data_template:
+#      entity_id: script.{{ Script | replace(" ", "_") }}
+#  speech:
+#    type: plain
+#    text: !include alexa_confirm.yaml
+amzn1.ask.skill.fd11bf72-433e-4ea7-86cf-a15e6accd337:
+    action:
+      service: script.turn_on
+      entity_id: script.goodnight
+    speech:
+      type: plain
+      text: !include alexa_goodnight.yaml

@@ -1,0 +1,21 @@
+switch.my_pc:
+      # Allow switch.my_pc to be controlled by the emulated Hue bridge
+      emulated_hue_hidden: false
+switch.fayes_pc_and_tv:
+  emulated_hue_hidden: false
+switch.telly:
+  emulated_hue_hidden: false
+sensor.weather_cloudiness:
+  friendly_name: "Cloud Cover"
+sensor.weather_precipitation:
+  friendly_name: "Rainfall"
+sensor.weather_temperature:
+  friendly_name: "Temperature"
+sensor.weather_wind_speed:
+  friendly_name: "Wind Speed"
+sensor.temperature_1:
+  friendly_name: "Living Room Temperature"
+sensor.humidity_2:
+  friendly_name: "Living Room Humidity"
+sensor.pressure_3:
+  friendly_name: "Living Room Pressure"

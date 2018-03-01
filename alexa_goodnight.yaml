@@ -1,0 +1,10 @@
+>
+  {{ [
+          "Goodnight",
+          "Sweet dreams",
+          "Sleep well",
+          "G'night",
+          "Fair enough, it's getting pretty late",
+          "Night night"
+          "Don't let the bed bugs bite!",
+          ] | random }} 
