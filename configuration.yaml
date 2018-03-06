@@ -91,9 +91,9 @@ wake_on_lan:
 hdmi_cec:
   devices:
     tv: 0.0.0.0
-    fayes_pc: 3.0.0.0
+    fayes_pc: 1.0.0.0
     chromecast: 2.0.0.0
-    raspberry_pi: 1.0.0.0
+    hassio: 3.0.0.0
     
 switch:
   - platform: wake_on_lan
@@ -155,13 +155,14 @@ device_tracker:
     home_interval: 10
     
 automation old:
-# Turns on lights 1 hour before sunset if people are home
+# Turns on lights if it's dark and people are home
 # and if people get home between 16:00-03:00
   - alias: 'Rule 1 Light on in the evening'
     trigger:
-      - platform: sun
-        event: sunset
-        offset: '-00:15:00'
+      - platform: numeric_state
+        entity_id: sun.sun
+        value_template: '{{ state.attributes.elevation }}'
+        below: 2
       - platform: state
         entity_id: group.all_devices
         to: 'home'
@@ -184,7 +185,8 @@ automation old:
       to: 'not_home'
     action:
       service: light.turn_off
-      entity_id: group.all_lights   
+      entity_id: group.all_lights
+      
 
 # Brightens/Dims lights when Chromecast is playing.
   - alias: "Media player paused/stopped"
@@ -214,8 +216,52 @@ automation old:
     action:
         service: scene.turn_on
         entity_id: scene.livingroom_dim
+        
+  - alias: Turn on downstairs hall light when there is movement
+    trigger:
+      platform: state
+      entity_id: binary_sensor.presence_7
+      to: 'on'
+    condition:
+      - condition: numeric_state
+        entity_id: sun.sun
+        value_template: '{{ state.attributes.elevation }}'
+        below: 2
+    action:
+      service: homeassistant.turn_on
+      entity_id: light.light_1
 
+  - alias: Turn off downstairs light 30 seconds after last movement
+    trigger:
+      platform: state
+      entity_id: binary_sensor.presence_7
+      to: 'off'
+    action:
+      service: homeassistant.turn_off
+      entity_id: light.light_1
       
+  - alias: Turn on upstairs hall light when there is movement
+    trigger:
+      platform: state
+      entity_id: binary_sensor.presence_5
+      to: 'on'
+    condition:
+      - condition: numeric_state
+        entity_id: sun.sun
+        value_template: '{{ state.attributes.elevation }}'
+        below: 2
+    action:
+      service: homeassistant.turn_on
+      entity_id: light.upstairs_hall
+
+  - alias: Turn off upstairs light 30 seconds after last movement
+    trigger:
+      platform: state
+      entity_id: binary_sensor.presence_5
+      to: 'off'
+    action:
+      service: homeassistant.turn_off
+      entity_id: light.upstairs_hall
  
 climate:
   - platform: heatmiser
