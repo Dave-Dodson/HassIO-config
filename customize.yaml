@@ -25,5 +25,13 @@ sensor.lightlevel_6:
   friendly_name: "Downstaris Hall Light Level"
 binary_sensor.presence_5:
   friendly_name: "Upstairs Hall Presence"
+  hidden: true
 binary_sensor.presence_7:
   friendly_name: "Downstairs Hall Presence"
+  hidden: true
+light.stevie:
+  hidden: true
+light.sheldon:
+  hidden: true
+light.sophie:
+  hidden: true
