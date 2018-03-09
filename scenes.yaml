@@ -32,3 +32,13 @@
       transition: 2
       brightness_pct: 10
       rgb_color: [255,207,120]
+- name: Upstairs Hall dim
+  entities:
+    light.upstairs_hall:
+      state: on
+      brightness_pct: 30
+- name: Upstairs Hall normal
+  entities:
+    light.upstairs_hall:
+      state: on
+      brightness_pct: 100

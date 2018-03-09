@@ -71,6 +71,18 @@ sensor:
       - precipitation
       - windSpeed
       - cloudiness
+  - platform: template
+    sensors:
+      day_night:
+        friendly_name: "Day and night"
+        value_template: >-
+          {% if now().hour >= 18 and now().hour < 24 %}
+            Evening
+          {% elif now().hour >= 0 and now().hour < 6 %}  
+            Night
+          {% else %}
+            Day
+          {% endif %}
 
 # Text to speech
 tts:
@@ -162,7 +174,7 @@ automation old:
       - platform: numeric_state
         entity_id: sun.sun
         value_template: '{{ state.attributes.elevation }}'
-        below: 2
+        below: 3
       - platform: state
         entity_id: group.all_devices
         to: 'home'
@@ -257,8 +269,14 @@ automation old:
         value_template: '{{ state.attributes.elevation }}'
         below: 2
     action:
-      service: homeassistant.turn_on
-      entity_id: light.upstairs_hall
+      service: scene.turn_on
+      data_template:
+        entity_id: >
+          {%- if is_state('sensor.day_night', 'Night') %}
+            scene.upstairs_hall_dim      
+          {%- else %}
+            scene.upstairs_hall_normal
+          {% endif %}
 
   - alias: Turn off upstairs light 30 seconds after last movement
     trigger:
