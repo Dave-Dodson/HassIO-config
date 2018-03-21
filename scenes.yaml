@@ -36,7 +36,7 @@
   entities:
     light.upstairs_hall:
       state: on
-      brightness_pct: 30
+      brightness_pct: 10
 - name: Upstairs Hall normal
   entities:
     light.upstairs_hall:

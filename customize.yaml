@@ -35,3 +35,7 @@ light.sheldon:
   hidden: true
 light.sophie:
   hidden: true
+light.upstairs_hall:
+  emulated_hue_hidden: false
+light.light_1:
+  emulated_hue_hidden: false

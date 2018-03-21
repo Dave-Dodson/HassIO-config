@@ -174,7 +174,7 @@ automation old:
       - platform: numeric_state
         entity_id: sun.sun
         value_template: '{{ state.attributes.elevation }}'
-        below: 3
+        below: 5
       - platform: state
         entity_id: group.all_devices
         to: 'home'
@@ -244,7 +244,7 @@ automation old:
       - condition: numeric_state
         entity_id: sun.sun
         value_template: '{{ state.attributes.elevation }}'
-        below: 2
+        below: 3
     action:
       service: homeassistant.turn_on
       entity_id: light.light_1
@@ -267,7 +267,7 @@ automation old:
       - condition: numeric_state
         entity_id: sun.sun
         value_template: '{{ state.attributes.elevation }}'
-        below: 2
+        below: 3
     action:
       service: scene.turn_on
       data_template:
@@ -287,14 +287,12 @@ automation old:
       service: homeassistant.turn_off
       entity_id: light.upstairs_hall
  
+ 
 climate:
-  - platform: heatmiser
+  - platform: heatmiserWIFI
     ipaddress: 192.168.0.12
-    port: 80
-    tstats:
-      1: 
-        id: 1
-        name: Thermostat
+    port: 8068
+    pin: !secret thermostat_pin
 
 history_graph:
   gr1:
