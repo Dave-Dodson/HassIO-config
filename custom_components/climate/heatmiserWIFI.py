@@ -9,7 +9,7 @@ from . import heatmiser_wifi
 import voluptuous as vol
 
 from homeassistant.components.climate import (
-    ClimateDevice, PLATFORM_SCHEMA, SUPPORT_TARGET_TEMPERATURE)
+    ClimateDevice, PLATFORM_SCHEMA, SUPPORT_TARGET_TEMPERATURE, ATTR_MIN_TEMP)
 from homeassistant.const import (
     TEMP_CELSIUS, ATTR_TEMPERATURE, CONF_PORT, CONF_NAME, CONF_ID, CONF_PIN)
 import homeassistant.helpers.config_validation as cv
@@ -72,6 +72,7 @@ class HeatmiserV3Thermostat(ClimateDevice):
         self.dcb = None
         self.update()
         self._target_temperature = int(self.dcb.get('set_room_temp'))
+        self._min_temp = 5
 
     @property
     def supported_features(self):
@@ -87,6 +88,16 @@ class HeatmiserV3Thermostat(ClimateDevice):
     def temperature_unit(self):
         """Return the unit of measurement which this thermostat uses."""
         return TEMP_CELSIUS
+    
+    @property
+    def min_temp(self):
+        """Return the minimum temperature."""
+        # pylint: disable=no-member
+        if self._min_temp:
+            return self._min_temp
+
+        # get default temp from super class
+        return ClimateDevice.min_temp.fget(self)
 
     @property
     def current_temperature(self):
