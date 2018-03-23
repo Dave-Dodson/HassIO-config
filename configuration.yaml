@@ -169,7 +169,7 @@ device_tracker:
 automation old:
 # Turns on lights if it's dark and people are home
 # and if people get home between 16:00-03:00
-  - alias: 'Rule 1 Light on in the evening'
+  - alias: 'Light on in the evening'
     trigger:
       - platform: numeric_state
         entity_id: sun.sun
@@ -190,7 +190,7 @@ automation old:
       entity_id: scene.livingroom_normal
 
 # Turn off lights when everybody leaves the house
-  - alias: 'Rule 2 - Away Mode'
+  - alias: 'Away Mode'
     trigger:
       platform: state
       entity_id: group.all_devices
@@ -286,7 +286,35 @@ automation old:
     action:
       service: homeassistant.turn_off
       entity_id: light.upstairs_hall
- 
+      
+  - alias: Bathroom heating on
+    trigger:
+      platform: time
+      at: '07:30:00'
+    condition:
+      - condition: state
+        entity_id: group.all_devices
+        state: 'home'
+      - condition: numeric_state
+        entity_id: 'sensor.weather_temperature'
+        below: '5'
+    action:
+      - service: climate.set_temperature
+        data:
+          entity_id: climate.heatmiser_wifi
+          temperature: 15
+
+  - alias: Bathroom heating off
+    trigger:
+      platform: time
+      at: '08:30:00'
+    action:
+      - service: climate.set_temperature
+        data:
+          entity_id: climate.heatmiser_wifi
+          temperature: 5
+          
+
  
 climate:
   - platform: heatmiserWIFI
