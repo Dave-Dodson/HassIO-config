@@ -101,11 +101,11 @@ scene: !include scenes.yaml
 wake_on_lan:
 
 hdmi_cec:
+  host: 192.168.0.17
   devices:
     tv: 0.0.0.0
     fayes_pc: 1.0.0.0
-    chromecast: 2.0.0.0
-    hassio: 3.0.0.0
+    kodi: 2.0.0.0
     
 switch:
   - platform: wake_on_lan
@@ -329,3 +329,27 @@ history_graph:
       - sensor.temperature_1
     hours_to_show: 240
     refresh: 480
+    
+media_player:
+  - platform: kodi
+    host: 192.168.0.17
+    port: 80
+    turn_on_action:
+      service: media_player.kodi_call_method
+      data:
+        entity_id: media_player.kodi
+        method: Addons.ExecuteAddon
+        addonid: script.json-cec
+        params:
+          command: activate
+    turn_off_action:
+    - service: media_player.media_stop
+      data:
+        entity_id: media_player.kodi
+    - service: media_player.kodi_call_method
+      data:
+        entity_id: media_player.kodi
+        method: Addons.ExecuteAddon
+        addonid: script.json-cec
+        params:
+          command: standby
