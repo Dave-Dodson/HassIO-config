@@ -81,3 +81,5 @@ hass-shell-command-test
 *.db-shm
 .HA_VERSION
 *.sh
+.config_entries.json
+config.zip

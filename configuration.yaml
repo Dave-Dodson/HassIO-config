@@ -318,6 +318,7 @@ automation old:
  
 climate:
   - platform: heatmiserWIFI
+    name: Bathroom Heating
     ipaddress: 192.168.0.12
     port: 8068
     pin: !secret thermostat_pin

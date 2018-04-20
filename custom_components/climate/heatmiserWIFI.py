@@ -18,6 +18,8 @@ import homeassistant.helpers.config_validation as cv
 
 _LOGGER = logging.getLogger(__name__)
 
+DEFAULT_NAME = "Heatmiser WIFI"
+
 CONF_IPADDRESS = 'ipaddress'
 #CONF_TSTATS = 'tstats'
 
@@ -32,6 +34,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
     vol.Required(CONF_IPADDRESS): cv.string,
     vol.Required(CONF_PORT): cv.port,
 	vol.Required(CONF_PIN): cv.positive_int,
+    vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
 #    vol.Required(CONF_TSTATS, default={}):
 #        vol.Schema({cv.string: TSTATS_SCHEMA}),
 })
@@ -45,6 +48,7 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
     ipaddress = config.get(CONF_IPADDRESS)	
     port = str(config.get(CONF_PORT))
     pin = str(config.get(CONF_PIN))
+    name = str(config.get(CONF_NAME))
 #    tstats = config.get(CONF_TSTATS)
 	
 #	add_devices(heatmiser = Heatmiser(ipaddress, port, pin))
@@ -53,21 +57,21 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
 #    serport.open()
 
 #    for tstat in tstats.values():
-    add_devices([HeatmiserV3Thermostat(heatmiser_wifi, port, ipaddress, pin)])
+    add_devices([HeatmiserV3Thermostat(heatmiser_wifi, port, ipaddress, pin, name)])
 #    return
 
 
 class HeatmiserV3Thermostat(ClimateDevice):
     """Representation of a HeatmiserV3 thermostat."""
 
-    def __init__(self, heatmiser_wifi, port, ipaddress, pin):
+    def __init__(self, heatmiser_wifi, port, ipaddress, pin, name):
         """Initialize the thermostat."""
         self.heatmiser = heatmiser_wifi.Heatmiser(ipaddress, int(port), pin)
         self.device = 1
         self.port = port
         self.pin = pin
         self._current_temperature = None
-        self._name = "Heatmiser WIFI"
+        self._name = name
         self._id = 1
         self.dcb = None
         self.update()
