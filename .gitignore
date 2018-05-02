@@ -83,3 +83,6 @@ hass-shell-command-test
 *.sh
 .config_entries.json
 config.zip
+custom_components
+custom_components/climate/README.md
+*.db-wal

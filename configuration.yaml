@@ -322,6 +322,7 @@ climate:
     ipaddress: 192.168.0.12
     port: 8068
     pin: !secret thermostat_pin
+    sensor: floor_temp
 
 history_graph:
   gr1:
