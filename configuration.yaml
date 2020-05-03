@@ -27,11 +27,11 @@ http:
   # api_password: !secret http_password
   # Uncomment this if you are using SSL/TLS, running in Docker container, etc.
   # base_url: example.duckdns.org:8123
-  base_url: !secret base_url
-  server_port: 443
-  ssl_certificate: !secret ssl_certificate
-  ssl_key: !secret ssl_key
-  api_password: !secret http_password
+  # base_url: !secret base_url
+  # server_port: 443
+  # ssl_certificate: !secret ssl_certificate
+  # ssl_key: !secret ssl_key
+  #api_password: !secret http_password
   ip_ban_enabled: True
   login_attempts_threshold: 5
 # Checks for available updates
@@ -61,6 +61,8 @@ map:
 # Track the sun
 sun:
 
+system_health:
+
 # Weather prediction
 sensor:
   - platform: yr
@@ -78,7 +80,7 @@ sensor:
         value_template: >-
           {% if now().hour >= 18 and now().hour < 24 %}
             Evening
-          {% elif now().hour >= 0 and now().hour < 6 %}  
+          {% elif now().hour >= 0 and now().hour < 8 %}  
             Night
           {% else %}
             Day
@@ -86,7 +88,8 @@ sensor:
 
 # Text to speech
 tts:
-  - platform: google
+  - platform: google_translate
+    service_name: google_say
 
 # Cloud
 cloud:
@@ -96,63 +99,55 @@ automation: !include automations.yaml
 script: !include scripts.yaml
 scene: !include scenes.yaml
 
-#logger:
-
 wake_on_lan:
-
-hdmi_cec:
-  host: 192.168.0.17
-  devices:
-    tv: 0.0.0.0
-    fayes_pc: 1.0.0.0
-    kodi: 2.0.0.0
     
 switch:
   - platform: wake_on_lan
-    name: "Just Faye's PC"
-    host: 192.168.0.11
-    mac_address: "f4:6d:04:48:9f:9c"
-    turn_off:
-      service: hassio.addon_stdin
-      data:
-        addon: core_rpc_shutdown
-        input: fayes_pc
+    name: "Faye's PC"
+    host: 192.168.0.20
+    mac: "f4:6d:04:48:9f:9c"
+#    turn_off:
+#      service: hassio.addon_stdin
+#      data:
+#        addon: core_rpc_shutdown
+#        input: fayes_pc
     
   - platform: wake_on_lan
     name: "My PC"
-    mac_address: "50:e5:49:ec:a1:0c"
-    host: 192.168.0.5
-    turn_off:
-      service: hassio.addon_stdin
-      data:
-        addon: core_rpc_shutdown
-        input: daves_pc
-            
-  - platform: template
-    switches:
-      telly:
-        friendly_name: "The TV"
-        value_template: "{{ is_state('switch.hdmi_0', 'on') }}"
-        turn_on:
-          service: script.television_on
-        turn_off:
-          service: script.television_off
-          
-  - platform: template
-    switches:
-      fayes_pc_and_tv:
-        friendly_name: "Faye's PC"
-        value_template: "{{ is_state('switch.just_fayes_pc', 'on') }}"
-        turn_on:
-          service: script.boot_to_fayes
-        turn_off:
-          service: script.turn_off_fayes
-          
+    mac: "E0:D5:5E:20:53:46"
+    host: 192.168.0.26
+    
+#  - platform: template
+#    switches:
+#      telly:
+#        friendly_name: "The TV"
+#        value_template: "{{ is_state('switch.hdmi_0', 'on') }}"
+#        turn_on:
+#          service: script.television_on
+#        turn_off:
+#          service: script.television_off
+#          
+#  - platform: template
+#    switches:
+#      fayes_pc_and_tv:
+#        friendly_name: "Faye's PC"
+#        value_template: "{{ is_state('switch.just_fayes_pc', 'on') }}"
+#        turn_on:
+#          service: script.boot_to_fayes
+#        turn_off:
+#          service: script.turn_off_fayes
+   
+binary_sensor:     
+  - platform: workday
+    country: UK
             
 emulated_hue:
-  host_ip: 192.168.0.4
   listen_port: 8300
-  expose_by_default: false
+  expose_by_default: true
+  exposed_domains:
+    - light
+    - switch
+    - media_player
 
 alexa:
 
@@ -160,13 +155,127 @@ intent_script: !include alexa_intents.yaml
 
 device_tracker:
   - platform: nmap_tracker
-    hosts: 192.168.0.2
+    hosts: 192.168.0.18
     home_interval: 10
   - platform: nmap_tracker
-    hosts: 192.168.0.9
+    hosts: 192.168.0.28
     home_interval: 10
     
 automation old:
+
+  - alias: 'Toggle bedside light from bedroom switch'
+    trigger:
+      platform: event
+      event_type: deconz_event
+      event_data:
+        id: smart_switch_2
+        event: 1002
+    action:
+      service: light.toggle
+      entity_id: light.bedside_light
+
+  - alias: 'Turn off all lights from bedroom switch'
+    trigger:
+      platform: event
+      event_type: deconz_event
+      event_data:
+        id: smart_switch_2
+        event: 1004
+    action:
+      - service: light.turn_off
+        entity_id: all
+      - delay: "00:00:01"
+      - service: light.turn_on
+        entity_id: light.bedside_light
+
+  - alias: 'Toggle bedside light from smart switch'
+    trigger:
+      platform: event
+      event_type: deconz_event
+      event_data:
+        id: bedside_switch
+        event: 1002
+    action:
+      service: light.toggle
+      entity_id: light.bedside_light
+
+  - alias: 'Turn off lights from smart switch'
+    trigger:
+      platform: event
+      event_type: deconz_event
+      event_data:
+        id: bedside_switch
+        event: 1004
+    action:
+      service: light.turn_off
+      entity_id: all
+
+  - alias: 'IKEA power switch'
+    trigger:
+      platform: event
+      event_type: deconz_event
+      event_data:
+        id: ikea_switch
+        event: 1002
+    action:
+      service: light.toggle
+      entity_id: light.living_room
+
+  - alias: 'IKEA brightness up switch'
+    trigger:
+      platform: event
+      event_type: deconz_event
+      event_data:
+        id: ikea_switch
+        event: 2002
+    action:
+      service: light.turn_on
+      data:
+        entity_id: light.living_room
+        transition: '1'
+        brightness_step_pct: 25
+
+  - alias: 'IKEA brightness down switch'
+    trigger:
+      platform: event
+      event_type: deconz_event
+      event_data:
+        id: ikea_switch
+        event: 3002
+    action:
+      service: light.turn_on
+      data:
+        entity_id: light.living_room
+        transition: '1'
+        brightness_step_pct: -25
+
+  - alias: 'IKEA left switch'
+    trigger:
+      platform: event
+      event_type: deconz_event
+      event_data:
+        id: ikea_switch
+        event: 4002
+    action:
+      service: switch.turn_off
+      entity_id: switch.electric_blanket
+
+  - alias: 'IKEA right switch'
+    trigger:
+      platform: event
+      event_type: deconz_event
+      event_data:
+        id: ikea_switch
+        event: 5002
+    action:
+      - service: homeassistant.turn_on
+        entity_id: group.fancybedroom
+      - service: light.turn_on
+        data:
+          entity_id: light.living_room
+          transition: '1'
+          brightness_pct: 25
+
 # Turns on lights if it's dark and people are home
 # and if people get home between 16:00-03:00
   - alias: 'Light on in the evening'
@@ -176,28 +285,33 @@ automation old:
         value_template: '{{ state.attributes.elevation }}'
         below: 5
       - platform: state
-        entity_id: group.all_devices
+        entity_id: group.anyone
         to: 'home'
     condition:
       - condition: state
-        entity_id: group.all_devices
+        entity_id: group.anyone
         state: 'home'
-      - condition: time
-        after: '16:00:00'
-        before: '03:00:00'
+      - condition: numeric_state
+        entity_id: sun.sun
+        value_template: '{{ state.attributes.elevation }}'
+        below: 5
     action:
       service: scene.turn_on
       entity_id: scene.livingroom_normal
 
-# Turn off lights when everybody leaves the house
+# Turn off lights and heating when everybody leaves the house
   - alias: 'Away Mode'
     trigger:
       platform: state
-      entity_id: group.all_devices
-      to: 'not_home'
+      entity_id: group.anyone
+      from: 'home'
     action:
-      service: light.turn_off
-      entity_id: group.all_lights
+      - service: light.turn_off
+        entity_id: all
+      - service: climate.set_temperature
+        data:
+          entity_id: climate.house_heating
+          temperature: 5
       
 
 # Brightens/Dims lights when Chromecast is playing.
@@ -206,7 +320,6 @@ automation old:
       - platform: state
         entity_id: media_player.dave_chromecast
         from: 'playing'
-#        to: 'idle'
     condition:
       - condition: state
         entity_id: sun.sun
@@ -223,7 +336,6 @@ automation old:
       - platform: state
         entity_id: media_player.dave_chromecast
         to: 'playing'
-#        from: 'idle'
     condition:
       - condition: state
         entity_id: sun.sun
@@ -238,7 +350,7 @@ automation old:
   - alias: Turn on downstairs hall light when there is movement
     trigger:
       platform: state
-      entity_id: binary_sensor.presence_7
+      entity_id: binary_sensor.downstairs_motion
       to: 'on'
     condition:
       - condition: numeric_state
@@ -247,21 +359,77 @@ automation old:
         below: 3
     action:
       service: homeassistant.turn_on
-      entity_id: light.light_1
+      entity_id: light.downstairs_hall
 
-  - alias: Turn off downstairs light 30 seconds after last movement
+  - alias: Turn off downstairs light 1 minute after last movement
     trigger:
       platform: state
-      entity_id: binary_sensor.presence_7
+      entity_id: binary_sensor.downstairs_motion
       to: 'off'
+      for:
+        minutes: 1
     action:
       service: homeassistant.turn_off
-      entity_id: light.light_1
+      entity_id: light.downstairs_hall
+        
+  - alias: Turn on dressing room light when there is movement
+    trigger:
+      platform: state
+      entity_id: binary_sensor.presence_15
+      to: 'on'
+    action:
+      service: homeassistant.turn_on
+      entity_id: light.dressing_room_light
+
+  - alias: Turn off dressing room light after last movement
+    trigger:
+      platform: state
+      entity_id: binary_sensor.presence_15
+      to: 'off'
+      for:
+        minutes: 1
+    action:
+      service: homeassistant.turn_off
+      entity_id: light.dressing_room_light
+        
+  - alias: Turn on kitchen light when there is movement
+    trigger:
+      platform: state
+      entity_id: binary_sensor.kitchen_motion
+      to: 'on'
+    condition:
+      - condition: numeric_state
+        entity_id: sun.sun
+        value_template: '{{ state.attributes.elevation }}'
+        below: 5
+    action:
+      - service: deconz.configure
+        data:
+          field: "/lights/00:15:8d:00:02:46:0d:4c-03/state"
+          data: {"on":true}
+      - service: device_tracker.see
+        data:
+          dev_id: "d07714205813"
+          location_name: "home"
+
+
+  - alias: Turn off kitchen light 1 minute after last movement
+    trigger:
+      platform: state
+      entity_id: binary_sensor.kitchen_motion
+      to: 'off'
+      for:
+        minutes: 1
+    action:
+      service: deconz.configure
+      data:
+        field: "/lights/00:15:8d:00:02:46:0d:4c-03/state"
+        data: {"on":false}
       
   - alias: Turn on upstairs hall light when there is movement
     trigger:
       platform: state
-      entity_id: binary_sensor.presence_5
+      entity_id: binary_sensor.upstairs_motion
       to: 'on'
     condition:
       - condition: numeric_state
@@ -278,11 +446,35 @@ automation old:
             scene.upstairs_hall_normal
           {% endif %}
 
-  - alias: Turn off upstairs light 30 seconds after last movement
+  - alias: Turn off upstairs light 1 minute after last movement
     trigger:
       platform: state
-      entity_id: binary_sensor.presence_5
+      entity_id: binary_sensor.upstairs_motion
       to: 'off'
+      for:
+        minutes: 1
+    action:
+      service: homeassistant.turn_off
+      entity_id: light.upstairs_hall
+
+  - alias: Turn on bedside light when there is movement
+    trigger:
+      platform: state
+      entity_id: binary_sensor.upstairs_motion
+      to: 'on'
+    action:
+      - service: homeassistant.turn_on
+        entity_id: light.bedside_light
+      - service: homeassistant.turn_off
+        entity_id: automation.turn_on_bedside_light_when_there_is_movement
+
+  - alias: Turn off upstairs light 1 minute after last movement
+    trigger:
+      platform: state
+      entity_id: binary_sensor.upstairs_motion
+      to: 'off'
+      for:
+        minutes: 1
     action:
       service: homeassistant.turn_off
       entity_id: light.upstairs_hall
@@ -290,7 +482,7 @@ automation old:
   - alias: Bathroom heating on
     trigger:
       platform: time
-      at: '07:30:00'
+      at: '06:00:00'
     condition:
       - condition: state
         entity_id: group.all_devices
@@ -301,57 +493,45 @@ automation old:
     action:
       - service: climate.set_temperature
         data:
-          entity_id: climate.heatmiser_wifi
+          entity_id: climate.bathroom_heating
           temperature: 15
 
   - alias: Bathroom heating off
     trigger:
       platform: time
-      at: '08:30:00'
+      at: '07:00:00'
     action:
       - service: climate.set_temperature
         data:
-          entity_id: climate.heatmiser_wifi
+          entity_id: climate.bathroom_heating
           temperature: 5
-          
+      
+  - alias: House Heating On
+    trigger:
+      - platform: time        
+        at: '08:30:00'
+      - platform: state
+        entity_id: group.all_devices
+        to: 'home'
+    condition:
+      - condition: state
+        entity_id: group.all_devices
+        state: 'home'
+      - condition: time
+        after: '08:30:00'
+        before: '20:00:00'
+    action:
+      - service: climate.set_temperature
+        data:
+          entity_id: climate.house_heating
+          temperature: 15
 
- 
-climate:
-  - platform: heatmiserWIFI
-    name: Bathroom Heating
-    ipaddress: 192.168.0.12
-    port: 8068
-    pin: !secret thermostat_pin
-    sensor: floor_temp
-
-history_graph:
-  gr1:
-    name: Living Room Temperature
-    entities:
-      - sensor.temperature_1
-    hours_to_show: 240
-    refresh: 480
-    
-media_player:
-  - platform: kodi
-    host: 192.168.0.17
-    port: 80
-    turn_on_action:
-      service: media_player.kodi_call_method
-      data:
-        entity_id: media_player.kodi
-        method: Addons.ExecuteAddon
-        addonid: script.json-cec
-        params:
-          command: activate
-    turn_off_action:
-    - service: media_player.media_stop
-      data:
-        entity_id: media_player.kodi
-    - service: media_player.kodi_call_method
-      data:
-        entity_id: media_player.kodi
-        method: Addons.ExecuteAddon
-        addonid: script.json-cec
-        params:
-          command: standby
+  - alias: House heating off
+    trigger:
+      platform: time
+      at: '21:00:00'
+    action:
+      - service: climate.set_temperature
+        data:
+          entity_id: climate.house_heating
+          temperature: 5

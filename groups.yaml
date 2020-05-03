@@ -1,0 +1,14 @@
+davespc:
+  name: Dave's PC
+  entities:
+    - switch.my_pc
+    - switch.monitors
+anyone:
+  entities:
+    - person.dave
+    - person.faye
+fancyBedroom:
+  name: Fancy Bedroom
+  entities:
+    - automation.turn_on_bedside_light_when_there_is_movement
+    - switch.electric_blanket

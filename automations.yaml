@@ -1,1 +1,13 @@
-[]
+- id: '1559765578566'
+  alias: Toggle Monitors
+  trigger:
+    platform: state
+    entity_id: switch.my_pc
+  action: 
+    service_template: >
+      {% if trigger.to_state.state == 'on' %}
+        switch.turn_on
+      {% else %}
+        switch.turn_off
+      {% endif %}
+    entity_id: light.monitors_2
