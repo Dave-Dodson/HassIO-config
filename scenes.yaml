@@ -1,5 +1,20 @@
 - name: Livingroom normal
   entities:
+    light.luxo:
+      state: on
+      transition: 2
+      brightness_pct: 60
+      rgb_color: [255,207,120]
+    light.audrey:
+      state: on
+      transition: 2
+      brightness_pct: 70
+      rgb_color: [255,207,120]
+    light.flora:
+      state: on
+      transition: 2
+      brightness_pct: 70
+      rgb_color: [255,207,120]
     light.stevie:
       state: on
       transition: 2

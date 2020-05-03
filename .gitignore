@@ -86,3 +86,4 @@ config.zip
 custom_components
 custom_components/climate/README.md
 *.db-wal
+/ip_bans.yaml
